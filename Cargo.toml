@@ -1,0 +1,16 @@
+[package]
+name = "grsott"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+bunyarrs = "0.3"
+pcap-file = "3.0.0-rc1"
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+tracing-subscriber = "0.3"
+
+[[bin]]
+name = "proxy"
+path = "src/bin/proxy.rs"
