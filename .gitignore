@@ -2,3 +2,5 @@
 .port/
 .idea/
 *.pcapng
+*.bad
+
