@@ -5,9 +5,6 @@ use itertools::Itertools;
 use pcap_file::pcapng::Block::{EnhancedPacket, InterfaceDescription};
 use pcap_file::pcapng::blocks::enhanced_packet::EnhancedPacketBlock;
 use std::collections::HashMap;
-use std::io::Write;
-use std::net::{Ipv4Addr, Shutdown, TcpStream};
-use std::ops::Sub;
 use std::time::Duration;
 use std::{env, fs};
 
@@ -19,25 +16,18 @@ struct Group {
 type Columns = HashMap<usize, Vec<(Duration, i32)>>;
 
 fn main() -> Result<()> {
-    let forward = false;
     let mut group = Group::default();
 
     for arg in env::args().skip(1) {
         let f = fs::File::open(&arg)?;
         let mut f = pcap_file::pcapng::PcapNgReader::new(f)?;
         f.interfaces();
-        let mut ref_dur = None;
         let mut i = 0;
         while let Some(v) = f.next_block() {
             match v? {
                 InterfaceDescription(_) => (),
                 EnhancedPacket(packet) => {
-                    if forward {
-                        let mut sock = TcpStream::connect((Ipv4Addr::LOCALHOST, 5279))?;
-                        sock.shutdown(Shutdown::Read)?;
-                        sock.write_all(&packet.data)?;
-                    }
-                    print_packet_pcap(&packet, &mut ref_dur, &mut group)
+                    print_packet_pcap(&packet, &mut group)
                         .with_context(|| anyhow!("processing packet #{i} in {arg:?}"))?;
                 }
                 v => bail!("unsupported packet {v:?}"),
@@ -172,56 +162,6 @@ fn print_51_20(packet: &[u8], when: Duration, columns: &mut Columns) -> Result<(
     Ok(())
 }
 
-#[cfg(never)]
-fn print_table(packet: &[u8], table: &[Field]) {
-    for field in table.iter()
-    // .filter(|f| f.useful)
-    {
-        let start = field.off as usize;
-        let end = start + field.len as usize;
-        if end > packet.len() {
-            println!("  {:20} - out of bounds", field.name);
-            continue;
-        }
-        let slice = &packet[start..end];
-        match &field.kind {
-            grsott::tables::FieldKind::Text => {
-                if let Ok(s) = std::str::from_utf8(slice) {
-                    println!(
-                        "  {:20} - {}",
-                        field.name,
-                        s.trim_end_matches(char::from(0))
-                    );
-                } else {
-                    println!("  {:20} - invalid utf8", field.name);
-                }
-            }
-            grsott::tables::FieldKind::U16 { divide } => {
-                if slice.len() != 2 {
-                    println!(
-                        "  {:20} - invalid length for u16 - {}",
-                        field.name,
-                        unambiguous(slice)
-                    );
-                    continue;
-                }
-                let v = u16::from_be_bytes([slice[0], slice[1]]);
-                let v = (v as f64) / (*divide as f64);
-                println!("  {:20} - {:.2}", field.name, v);
-            }
-            grsott::tables::FieldKind::I16 { divide } => {
-                if slice.len() != 2 {
-                    println!("  {:20} - invalid length for i16", field.name);
-                    continue;
-                }
-                let v = i16::from_be_bytes([slice[0], slice[1]]);
-                let v = (v as f64) / (*divide as f64);
-                println!("  {:20} - {:.2}", field.name, v);
-            }
-        }
-    }
-}
-
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 enum Direction {
     FromInverter,
@@ -230,20 +170,14 @@ enum Direction {
 
 fn print_packet_pcap(
     packet: &EnhancedPacketBlock,
-    ref_dur: &mut Option<Duration>,
     group: &mut Group,
 ) -> Result<()> {
-    if ref_dur.is_none() {
-        *ref_dur = Some(packet.timestamp);
-    }
-    let ref_dur = ref_dur.unwrap();
     print_packet(
         match packet.interface_id {
             0 => Direction::FromInverter,
             1 => Direction::ToInverter,
             v => bail!("unknown interface id {v}"),
         },
-        packet.timestamp.sub(ref_dur),
         &packet.data,
         group,
         packet.timestamp,
@@ -252,7 +186,6 @@ fn print_packet_pcap(
 
 fn print_packet(
     dir: Direction,
-    ts: Duration,
     data: &[u8],
     group: &mut Group,
     ts_clock: Duration,
@@ -297,7 +230,7 @@ fn print_packet(
     ensure!(_u2 == 0, "expected u2==0, not {header:?}");
 
     if !rest.is_empty() {
-        print_packet(dir, ts, rest, group, ts_clock)
+        print_packet(dir, rest, group, ts_clock)
             .with_context(|| anyhow!("sub-packet after {len}"))?;
     }
 
