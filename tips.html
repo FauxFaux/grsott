@@ -1,0 +1,113 @@
+<div
+  class="layui-layer layui-layer-tips"
+  id="layui-layer28"
+  type="tips"
+  times="28"
+  showtime="0"
+  contype="object"
+  style="
+    z-index: 19891042;
+    width: 680px;
+    position: absolute;
+    left: 110.946px;
+    top: 362.071px;
+  "
+>
+  <div id="" class="layui-layer-content">
+    <table class="borderTable" style="width: 650px">
+      <tbody>
+        <tr style="text-align: center">
+          <td colspan="2">System diagram</td>
+        </tr>
+        <tr>
+          <td width="27%">Priority mode</td>
+          <td>Priority</td>
+        </tr>
+        <tr>
+          <td>System Status</td>
+          <td>
+            Device connection status != Offline and Device connection status !=
+            Fault (UwSysWorkMode) else (Device connection status)
+          </td>
+        </tr>
+        <tr>
+          <td>PV Power</td>
+          <td>Ppv / 1000</td>
+        </tr>
+        <tr>
+          <td>PV Inverter Power</td>
+          <td>Pex / 1000</td>
+        </tr>
+        <tr>
+          <td>Charging</td>
+          <td>Pcharge1 / 1000</td>
+        </tr>
+        <tr>
+          <td>Discharging</td>
+          <td>Pdischarge1 / 1000</td>
+        </tr>
+        <tr>
+          <td>SOC</td>
+          <td>SOC</td>
+        </tr>
+        <tr>
+          <td>Import</td>
+          <td>PacToUser / 1000</td>
+        </tr>
+        <tr>
+          <td>Export</td>
+          <td>PacToGrid / 1000</td>
+        </tr>
+        <tr>
+          <td>Consumption</td>
+          <td>(Ppv + Pdischarge1 + PacToUser - PacToGrid - Pcharge1) / 1000</td>
+        </tr>
+        <tr style="text-align: center">
+          <td colspan="2">Total</td>
+        </tr>
+        <tr>
+          <td>Photovoltaic Output</td>
+          <td>Today(Epvtoday)、Total (EpvTotal)</td>
+        </tr>
+        <tr>
+          <td>Inverter generation</td>
+          <td>Today(Eextoday)、Total (Eextotal)</td>
+        </tr>
+        <tr>
+          <td>Discharged</td>
+          <td>Today (Edischarge1Today)、Total (Edischarge1Total)</td>
+        </tr>
+        <tr>
+          <td>Exported to Grid</td>
+          <td>
+            Today (new version (EsystemToday - EselfToday) else
+            (EtoGridToday))、Total (new version (EsystemTotal - EselfTotal) else
+            (EtoGridTotal))
+          </td>
+        </tr>
+        <tr>
+          <td>Load Consumption</td>
+          <td>
+            Today (new version (ElocalLoadToday) else (TodayPhotovoltaic Output
+            + Edischarge1Today + EtoUserToday - EtoGridToday -
+            Echarge1Today)、Total (new version (ElocalLoadTotal) else
+            (TotalPhotovoltaic Output + Edischarge1Total + EtoUserTotal -
+            EtoGridTotal - Echarge1Total)
+          </td>
+        </tr>
+        <tr>
+          <td>Solar Revenue</td>
+          <td>
+            Today (TodayPhotovoltaic Output * Selling Price)、Total
+            (TotalPhotovoltaic Output * Selling Price)
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <i
+      class="layui-layer-TipsG layui-layer-TipsB"
+      style="border-right-color: rgb(76, 78, 131)"
+    ></i>
+  </div>
+  <span class="layui-layer-setwin"></span>
+</div>
