@@ -1,3 +1,5 @@
+import ensureError from "ensure-error";
+
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export type Result<T> = { success: true; value: T } | { success: false; error: Error };

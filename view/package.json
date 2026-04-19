@@ -12,7 +12,8 @@
   "dependencies": {
     "ensure-error": "^5",
     "express": "^5",
-    "preact": "^10"
+    "preact": "^10",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2",

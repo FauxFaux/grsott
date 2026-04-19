@@ -5,11 +5,14 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1"
+axum = "0.8"
+base64 = "0.22"
 bunyarrs = "0.3"
 crc = "3"
 hex = "0.4"
 itertools = "0.14"
 pcap-file = "3.0.0-rc1"
+serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
 time = "0.3"
 tokio = { version = "1", features = ["full"] }
