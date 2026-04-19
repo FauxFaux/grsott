@@ -1,0 +1,26 @@
+{
+  "name": "view",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "format": "oxfmt",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ensure-error": "^5",
+    "express": "^5",
+    "preact": "^10"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2",
+    "@types/express": "^5",
+    "@types/node": "^24",
+    "oxfmt": "^0.45",
+    "typescript": "~6",
+    "vite": "^8",
+    "vitest": "^4"
+  }
+}
