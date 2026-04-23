@@ -76,3 +76,8 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+td {
+  padding: 0 4px;
+  border: 1px solid #444;
+}
