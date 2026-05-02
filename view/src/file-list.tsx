@@ -1,13 +1,8 @@
 import { serializeError } from "serialize-error";
 import type { Result } from "./lib/ts.ts";
+import { Link } from "wouter-preact";
 
-export function FileList({
-  files,
-  onSelect,
-}: {
-  files: Result<string[]> | undefined;
-  onSelect: (v: string) => void;
-}) {
+export function FileList({ files }: { files: Result<string[]> | undefined }) {
   if (!files) {
     return <div>Loading...</div>;
   }
@@ -29,8 +24,10 @@ export function FileList({
         .map(([ts, port]) => {
           const when = new Date(Number(ts)).toISOString();
           return (
-            <li onClick={() => onSelect(`${ts}.${port}.pcapng`)} style={{ cursor: "pointer" }}>
-              {when} ({port})
+            <li>
+              <Link href={`/whole/${ts}.${port}.pcapng`}>
+                {when} ({port})
+              </Link>
             </li>
           );
         })}

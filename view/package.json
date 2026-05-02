@@ -14,6 +14,7 @@
     "express": "^5",
     "preact": "^10",
     "serialize-error": "^13.0.1",
+    "wouter-preact": "^3.9.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
