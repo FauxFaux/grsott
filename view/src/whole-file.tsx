@@ -11,7 +11,8 @@ export function WholeFile(props: { fileName: string }) {
       const resp = await fetch("http://localhost:4444/cap/" + fileName);
 
       if (!resp.ok) {
-        throw new Error(`Failed to fetch: ${resp.status} ${resp.statusText}`);
+        const text = await resp.text();
+        throw new Error(`Failed to fetch: ${resp.status} ${resp.statusText}: ${text}`);
       }
       const value = JsPackets.parse(await resp.json());
       return { success: true, value };
@@ -68,7 +69,10 @@ export function WholeFile(props: { fileName: string }) {
 
 function unambig(data: Uint8Array): string {
   const arr = Array.from(data);
-  return arr.map((c) => (isAlphaNumeric(c) ? String.fromCharCode(c) : " {" + c + "} ")).join("");
+  return arr
+    .map((c) => (isAlphaNumeric(c) ? String.fromCharCode(c) : " {" + c + "} "))
+    .join("")
+    .replace(/(?: \{0} ){4,}/g, (m) => ` {0x${m.length / 5}} `);
 }
 
 function key(header: number[]) {
@@ -84,8 +88,9 @@ const isAlphaNumeric = (c: number) =>
 
 const knownKeys: Record<string, string> = {
   "065129": "serials and date",
-  "060118": "one byte at the end",
+  "060118": "single statement chat",
   "060116": "all nulls",
+  "060119": "boot chat",
   "065119": "two bytes at the end",
   "065104": "config dump?",
   "065120": "data dump",

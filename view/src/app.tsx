@@ -13,7 +13,8 @@ export function App() {
     andThen(async () => {
       const resp = await fetch("http://localhost:4444/cap");
       if (!resp.ok) {
-        throw new Error(`Failed to fetch: ${resp.status} ${resp.statusText}`);
+        const text = await resp.text();
+        throw new Error(`Failed to fetch: ${resp.status} ${resp.statusText}: ${text}`);
       }
       const value = Files.parse(await resp.json());
       return { success: true, value };
