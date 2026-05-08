@@ -19,7 +19,7 @@ impl PcapWriter {
         })
     }
 
-    pub fn write_packet(&mut self, buf: &[u8], dir: Direction) -> Result<()> {
+    pub async fn observe(&mut self, buf: &[u8], dir: Direction) -> Result<()> {
         let mut packet = EnhancedPacketBlock::default();
         packet.timestamp = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
@@ -38,7 +38,7 @@ impl PcapWriter {
         Ok(())
     }
 
-    pub fn flush(&mut self) -> Result<()> {
+    pub async fn flush(&mut self) -> Result<()> {
         self.inner
             .get_mut()
             .flush()
