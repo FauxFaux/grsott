@@ -79,6 +79,7 @@ fn i(name: &'static str, off: u16, divide: i16, useful: bool) -> Field {
     }
 }
 
+#[allow(dead_code)]
 fn t(name: &'static str, off: u16, len: u16, useful: bool) -> Field {
     Field {
         name,

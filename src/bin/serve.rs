@@ -62,6 +62,7 @@ async fn list_files() -> impl IntoResponse {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 enum GetCapError {
     BadFile(Error),
     BadParse(Error),

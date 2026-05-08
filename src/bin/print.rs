@@ -35,7 +35,7 @@ fn main() -> Result<()> {
 
 fn headline_stats(packets: &[Packet]) -> Result<()> {
     for pkt in packets {
-        let [_u0, _seq, _u2, major, len1, len0, n0, n1] = pkt.header;
+        let [_u0, _seq, _u2, major, _len1, _len0, n0, n1] = pkt.header;
         let key = [major, n0, n1];
         match (pkt.dir, key) {
             (Direction::FromInverter, [0x06, 0x51, 0x20]) => (),
@@ -91,7 +91,7 @@ fn analyse_packets(packets: &[Packet], file_id: &[(String, usize)]) -> Result<()
         })?;
     }
 
-    let mut columns = Columns::with_capacity(32);
+    let columns = Columns::with_capacity(32);
 
     for ((dir, key), packets) in group.inner.iter() {
         match (dir, key) {
@@ -124,7 +124,8 @@ fn analyse_packets(packets: &[Packet], file_id: &[(String, usize)]) -> Result<()
             counts.len()
         );
 
-        for ((when, packet), count) in counts.iter().sorted_by(|(_, a), (_, b)| b.cmp(a)).take(10) {
+        for ((_when, packet), count) in counts.iter().sorted_by(|(_, a), (_, b)| b.cmp(a)).take(10)
+        {
             println!("{:4} {:4} {}", count, packet.len(), unambiguous(packet));
         }
     }
@@ -165,6 +166,7 @@ fn ten_buckets(v: &[i32]) {
     }
 }
 
+#[allow(dead_code)]
 fn print_51_20(packet: &[u8], when: UtcDateTime, columns: &mut Columns) -> Result<()> {
     ensure!(
         packet.len() == 228,
@@ -215,7 +217,7 @@ fn group_up(pkt: &Packet, group: &mut Group) -> Result<()> {
     // println!("{:?} {:12} - major:{major:02x} n0:{n0:02x} n1:{n1:02x} len:{len}", ts.as_millis(), format!("{dir:?}"));
     // println!("{}", unambiguous(&decrypted));
 
-    let [_u0, _seq, _u2, major, len1, len0, n0, n1] = pkt.header;
+    let [_u0, _seq, _u2, major, _len1, _len0, n0, n1] = pkt.header;
 
     group
         .inner
