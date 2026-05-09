@@ -1,16 +1,16 @@
 use anyhow::{Context, Result};
 use bunyarrs::{Bunyarr, vars};
 use grsott::decode::Direction;
-use grsott::observe::Observer;
 use grsott::pcap_writer::PcapWriter;
 use std::env;
+use std::ops::DerefMut;
 use tokio::io::{self, AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::Mutex;
 
 const LISTEN_PORT: u16 = 5279;
 
-type Observers = [Observer; 1];
+type Observers = (PcapWriter,);
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -59,7 +59,7 @@ async fn handle_connection(
 
     let port = client_addr.port();
     let pcap = PcapWriter::new(port)?;
-    let observer = Mutex::new([Observer::Pcap(pcap)]);
+    let observer = Mutex::new((pcap,));
 
     let (mut client_read, mut client_write) = client_stream.split();
     let (mut server_read, mut server_write) = server_stream.split();
@@ -93,9 +93,9 @@ async fn handle_connection(
         }
     }
 
-    for observer in observer.lock().await.iter_mut() {
-        observer.flush().await?;
-    }
+    let mut observer = observer.lock().await;
+    let (pcap,) = observer.deref_mut();
+    pcap.flush().await?;
 
     logger.info(vars! { client_addr }, "closed");
     Ok(())
@@ -120,9 +120,9 @@ where
         }
 
         {
-            for observer in observer.lock().await.iter_mut() {
-                observer.observe(buf, direction).await?;
-            }
+            let mut observer = observer.lock().await;
+            let (pcap,) = observer.deref_mut();
+            pcap.observe(buf, direction).await?;
         }
 
         writer.write_all(&buf[..n]).await?;
