@@ -114,6 +114,22 @@ pub fn pkt_51_04() -> Vec<Field> {
         u2("soc", 353, 1, true),
         u4("pacToUserR", 355, 10, true),
         u4("pacToGridR", 371, 10, true),
+        u4("epv1Today", 189, 10, true),
+        u4("epv1Total", 193, 10, true),
+        u4("epv2Today", 197, 10, true),
+        u4("epv2Total", 201, 10, true),
+        u4("acChargeEnergyToday", 295, 10, false),
+        u4("acChargeEnergyTotal", 299, 10, false),
+        u4("etoUserToday", 413, 10, true),
+        u4("etoUserTotal", 417, 10, false),
+        u4("etoGridToday", 421, 10, true),
+        u4("etogridTotal", 425, 10, false),
+        u4("edischarge1Today", 429, 10, true),
+        u4("edischarge1Total", 433, 10, true),
+        u4("echarge1Today", 437, 10, true),
+        u4("echarge1Total", 441, 10, true),
+        u4("elocalLoadToday", 445, 10, true),
+        u4("elocalLoadTotal", 449, 10, true),
     ]
 }
 
