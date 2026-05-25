@@ -11,6 +11,14 @@ pub enum FieldKind {
     I16 { divide: i16 },
 }
 
+impl Field {
+    pub fn read_value(&self, chunks: &[i32]) -> Option<f64> {
+        let raw = *chunks.get(usize::from(self.off))?;
+        let divide = self.kind.divide()?;
+        Some(f64::from(raw) / f64::from(divide))
+    }
+}
+
 impl FieldKind {
     pub fn divide(&self) -> Option<i32> {
         match self {

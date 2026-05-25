@@ -1,7 +1,9 @@
 use anyhow::{Context, Result};
 use bunyarrs::{Bunyarr, vars};
 use grsott::decode::Direction;
+use grsott::hass_writer::HassWriter;
 use grsott::pcap_writer::PcapWriter;
+use mqtt_reeze::Mqtt;
 use std::env;
 use std::ops::DerefMut;
 use tokio::io::{self, AsyncReadExt, AsyncWriteExt};
@@ -10,7 +12,7 @@ use tokio::sync::Mutex;
 
 const LISTEN_PORT: u16 = 5279;
 
-type Observers = (PcapWriter,);
+type Observers = Option<(PcapWriter, HassWriter)>;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -59,7 +61,8 @@ async fn handle_connection(
 
     let port = client_addr.port();
     let pcap = PcapWriter::new(port)?;
-    let observer = Mutex::new((pcap,));
+    let hass = HassWriter::new(Mqtt::new_from_env("grsott")?);
+    let observer: Mutex<Observers> = Mutex::new(Some((pcap, hass)));
 
     let (mut client_read, mut client_write) = client_stream.split();
     let (mut server_read, mut server_write) = server_stream.split();
@@ -94,8 +97,12 @@ async fn handle_connection(
     }
 
     let mut observer = observer.lock().await;
-    let (pcap,) = observer.deref_mut();
+    let (mut pcap, hass) = observer
+        .deref_mut()
+        .take()
+        .expect("observers should be present");
     pcap.flush().await?;
+    hass.finish().await?;
 
     logger.info(vars! { client_addr }, "closed");
     Ok(())
@@ -121,8 +128,9 @@ where
 
         {
             let mut observer = observer.lock().await;
-            let (pcap,) = observer.deref_mut();
+            let (pcap, hass) = observer.as_mut().expect("observers should be present");
             pcap.observe(buf, direction).await?;
+            hass.observe(buf, direction).await?;
         }
 
         writer.write_all(&buf[..n]).await?;

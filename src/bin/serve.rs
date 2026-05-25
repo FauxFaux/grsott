@@ -103,7 +103,7 @@ async fn get_cap(Path(path): Path<String>) -> Result<impl IntoResponse, GetCapEr
                         Direction::ToInverter => "to_inverter".into(),
                         Direction::FromInverter => "from_inverter".into(),
                     },
-                    header: p.header,
+                    header: p.header.into(),
                     body: BASE64_STANDARD.encode(&p.body),
                 })
             })

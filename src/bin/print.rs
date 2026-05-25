@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow, ensure};
-use grsott::decode::{Direction, Packet, read_packets_from};
+use grsott::decode::{Direction, Header, Packet, read_packets_from};
 use grsott::tables::pkt_51_20;
 use itertools::Itertools;
 use std::collections::HashMap;
@@ -35,9 +35,7 @@ fn main() -> Result<()> {
 
 fn headline_stats(packets: &[Packet]) -> Result<()> {
     for pkt in packets {
-        let [_u0, _seq, _u2, major, _len1, _len0, n0, n1] = pkt.header;
-        let key = [major, n0, n1];
-        match (pkt.dir, key) {
+        match (pkt.dir, pkt.header.key()) {
             (Direction::FromInverter, [0x06, 0x51, 0x20]) => (),
             _ => continue,
         }
@@ -173,8 +171,6 @@ fn print_51_20(packet: &[u8], when: UtcDateTime, columns: &mut Columns) -> Resul
         "expected 228 byte packet for 51 20, not {}",
         packet.len()
     );
-    let _logger_serial = std::str::from_utf8(&packet[0..30])?.trim_end_matches(char::from(0));
-    let _inverter_serial = std::str::from_utf8(&packet[30..60])?.trim_end_matches(char::from(0));
     // println!("Logger Serial   : {}", logger_serial);
     // println!("Inverter Serial : {}", inverter_serial);
     let packet = &packet[60..];
@@ -217,7 +213,7 @@ fn group_up(pkt: &Packet, group: &mut Group) -> Result<()> {
     // println!("{:?} {:12} - major:{major:02x} n0:{n0:02x} n1:{n1:02x} len:{len}", ts.as_millis(), format!("{dir:?}"));
     // println!("{}", unambiguous(&decrypted));
 
-    let [_u0, _seq, _u2, major, _len1, _len0, n0, n1] = pkt.header;
+    let Header { major, n0, n1, .. } = pkt.header;
 
     group
         .inner
@@ -225,8 +221,8 @@ fn group_up(pkt: &Packet, group: &mut Group) -> Result<()> {
         .or_default()
         .push((pkt.ts, decrypted.to_vec()));
 
-    ensure!(_u0 == 0, "expected u0==0, not {:?}", pkt.header);
-    ensure!(_u2 == 0, "expected u2==0, not {:?}", pkt.header);
+    ensure!(pkt.header.u0 == 0, "expected u0==0, not {:?}", pkt.header);
+    ensure!(pkt.header.u2 == 0, "expected u2==0, not {:?}", pkt.header);
 
     Ok(())
 }
