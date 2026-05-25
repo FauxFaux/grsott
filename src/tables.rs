@@ -56,9 +56,9 @@ impl FieldKind {
 
 pub fn pkt_51_20() -> Vec<Field> {
     vec![
-        u4("voltage_l1", 60 + 3 * 4, 10, true),
-        u4("voltage_l2", 60 + 4 * 4, 10, false),
-        u4("voltage_l3", 60 + 5 * 4, 10, false),
+        u4("vac1", 60 + 3 * 4, 10, true),
+        u4("vac2", 60 + 4 * 4, 10, false),
+        u4("vac3", 60 + 5 * 4, 10, false),
         u4("current_l1", 60 + 6 * 4, 10, true),
         u4("current_l2", 60 + 7 * 4, 10, false),
         u4("current_l3", 60 + 8 * 4, 10, false),
@@ -82,10 +82,8 @@ pub fn pkt_51_20() -> Vec<Field> {
         u4("L1-2_voltage", 60 + 26 * 4, 10, false),
         u4("L2-3_voltage", 60 + 27 * 4, 10, false),
         u4("L3-1_voltage", 60 + 28 * 4, 10, false),
-        // etoUserTotal
-        i4("pos_act_energy", 60 + 29 * 4, 10, true),
-        // etogridTotal
-        i4("rev_act_energy", 60 + 30 * 4, 10, true),
+        i4("etoUserTotal", 60 + 29 * 4, 10, true),
+        i4("etogridTotal", 60 + 30 * 4, 10, true),
         i4("pos_act_energy_kvar", 60 + 31 * 4, 10, false),
         i4("rev_act_energy_kvar", 60 + 32 * 4, 10, false),
         i4("app_energy_kvar", 60 + 33 * 4, 10, false),
@@ -97,14 +95,25 @@ pub fn pkt_51_20() -> Vec<Field> {
 pub fn pkt_51_04() -> Vec<Field> {
     vec![
         u2("status", 71, 1, true),
-        u4("pvpowerin", 73, 1, true),
-        u2("pv1voltage", 77, 10, true),
-        u2("pv1current", 79, 10, true),
-        u4("pv1watt", 81, 10, true),
-        u2("pv2voltage", 85, 10, true),
-        u2("pv2current", 87, 10, true),
-        u4("pv2watt", 89, 10, true),
-        u4("pvpowerout", 93, 10, true),
+        u4("ppv", 73, 10, true),
+        u2("vpv1", 77, 10, true),
+        u2("ipv1", 79, 10, true),
+        u4("ppv1", 81, 10, true),
+        u2("vpv2", 85, 10, true),
+        u2("ipv2", 87, 10, true),
+        u4("ppv2", 89, 10, true),
+        u4("pac", 141, 10, true),
+        u2("fac", 145, 100, true),
+        u2("vac1", 147, 10, true),
+        u4("pac1", 151, 10, false),
+        u4("eacToday", 177, 10, true),
+        u4("eacTotal", 181, 10, true),
+        u4("pdischarge1", 343, 10, true),
+        u4("pcharge1", 347, 10, true),
+        u2("vbat", 351, 10, true),
+        u2("soc", 353, 1, true),
+        u4("pacToUserR", 355, 10, true),
+        u4("pacToGridR", 371, 10, true),
     ]
 }
 
@@ -135,16 +144,6 @@ fn u2(name: &'static str, off: u16, divide: impl Into<f64>, useful: bool) -> Fie
         name,
         off,
         kind: FieldKind::U16 {
-            divide: divide.into(),
-        },
-        useful,
-    }
-}
-fn i2(name: &'static str, off: u16, divide: impl Into<f64>, useful: bool) -> Field {
-    Field {
-        name,
-        off,
-        kind: FieldKind::I16 {
             divide: divide.into(),
         },
         useful,

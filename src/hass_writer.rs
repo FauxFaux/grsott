@@ -1,5 +1,5 @@
 use crate::decode::{Direction, frame_a_packet};
-use crate::tables::pkt_51_20;
+use crate::tables::{pkt_51_04, pkt_51_20};
 use anyhow::Context;
 use bunyarrs::{Bunyarr, vars};
 use mqtt_reeze::{Mqtt, QoS, Topic};
@@ -54,12 +54,12 @@ impl HassWriter {
 
             let (_logger, inverter) = pkt.serials()?;
 
-            for field in pkt_51_20() {
+            for field in pkt_51_20().iter().chain(pkt_51_04().iter()) {
                 if !field.useful {
                     continue;
                 }
 
-                let v = match field.read_value(&pkt.body[60..]) {
+                let v = match field.read_value(&pkt.body) {
                     Some(v) => v,
                     // questionable; out of range only, should be impossible?
                     None => continue,

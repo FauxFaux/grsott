@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use grsott::decode::{Direction, Packet, read_packets_from, unambiguous};
+use grsott::decode::{Direction, read_packets_from, unambiguous};
 use grsott::tables::{Field, pkt_51_04, pkt_51_20};
 use std::{env, fs};
 use time::format_description::well_known::Rfc3339;
