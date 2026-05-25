@@ -48,20 +48,21 @@ impl HassWriter {
                 }
             };
 
-            if pkt.header.key() != [0x06, 0x51, 0x20] {
-                continue;
-            }
+            let fields = match pkt.header.key() {
+                [0x06, 0x51, 0x20] => pkt_51_20(),
+                [0x06, 0x51, 0x04] => pkt_51_04(),
+                _ => continue,
+            };
 
             let (_logger, inverter) = pkt.serials()?;
 
-            for field in pkt_51_20().iter().chain(pkt_51_04().iter()) {
+            for field in fields.iter() {
                 if !field.useful {
                     continue;
                 }
 
                 let v = match field.read_value(&pkt.body) {
                     Some(v) => v,
-                    // questionable; out of range only, should be impossible?
                     None => continue,
                 };
 
