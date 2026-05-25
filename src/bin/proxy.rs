@@ -87,25 +87,24 @@ async fn handle_connection(
         .await
     };
 
-    tokio::select! {
-        result = client_to_server => {
-            result?;
-        }
-        result = server_to_client => {
-            result?;
-        }
-    }
+    // run server, then try flush, then return errors
+    let server_result = tokio::select! {
+        result = client_to_server => result,
+        result = server_to_client => result,
+    };
 
     let mut observer = observer.lock().await;
     let (mut pcap, hass) = observer
         .deref_mut()
         .take()
         .expect("observers should be present");
-    pcap.flush().await?;
+    let flush_pcap = pcap.flush().await;
     hass.finish().await?;
+    flush_pcap?;
 
     logger.info(vars! { client_addr }, "closed");
-    Ok(())
+
+    server_result
 }
 
 async fn copy<R, W>(
