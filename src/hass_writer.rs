@@ -54,13 +54,12 @@ impl HassWriter {
 
             let (_logger, inverter) = pkt.serials()?;
 
-            let chunks = pkt.i32_be_chunks();
             for field in pkt_51_20() {
                 if !field.useful {
                     continue;
                 }
 
-                let v = match field.read_value(&chunks) {
+                let v = match field.read_value(&pkt.body[60..]) {
                     Some(v) => v,
                     // questionable; out of range only, should be impossible?
                     None => continue,

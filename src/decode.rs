@@ -44,15 +44,30 @@ impl Packet {
         Ok((logger_serial, inverter_serial))
     }
 
-    pub fn i32_be_chunks(&self) -> Vec<i32> {
-        if self.body.len() < 60 {
+    pub fn i32_be_chunks(&self, from: usize) -> Vec<i32> {
+        if self.body.len() < from {
             return Vec::new();
         }
 
-        self.body[60..]
+        self.body[from..]
             .chunks_exact(4)
             .map(|chunk| i32::from_be_bytes(chunk.try_into().expect("chunks exact")))
             .collect()
+    }
+
+    pub fn i16_be_chunks(&self, from: usize) -> Vec<i16> {
+        if self.body.len() < from {
+            return Vec::new();
+        }
+
+        self.body[from..]
+            .chunks_exact(2)
+            .map(|chunk| i16::from_be_bytes(chunk.try_into().expect("chunks exact")))
+            .collect()
+    }
+
+    pub fn body_len(&self) -> usize {
+        self.body.len()
     }
 }
 
@@ -112,8 +127,9 @@ fn frame_packets(
 
     yield_packet(packet);
 
-    if 0 != used_len {
-        frame_packets(dir, &data[used_len..], yield_packet, ts).context("sub packet")?;
+    let rest = &data[used_len..];
+    if !rest.is_empty() {
+        frame_packets(dir, rest, yield_packet, ts).context("sub packet")?;
     }
 
     Ok(())
@@ -220,4 +236,18 @@ impl Into<[u8; 8]> for Header {
         } = self;
         [u0, seq, u2, major, len1, len0, n0, n1]
     }
+}
+
+pub fn unambiguous(input: &[u8]) -> String {
+    let mut buf = String::with_capacity(2 * input.len());
+    for &c in input {
+        if c.is_ascii_alphanumeric() || c.is_ascii_punctuation() {
+            buf.push(char::from(c));
+        } else {
+            buf.push_str(&format!("[{c}]"));
+        }
+        buf.push(' ');
+    }
+    buf.pop();
+    buf
 }

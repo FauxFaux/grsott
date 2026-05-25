@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow, ensure};
-use grsott::decode::{Direction, Header, Packet, read_packets_from};
+use grsott::decode::{Direction, Header, Packet, read_packets_from, unambiguous};
 use grsott::tables::pkt_51_20;
 use itertools::Itertools;
 use std::collections::HashMap;
@@ -40,10 +40,7 @@ fn headline_stats(packets: &[Packet]) -> Result<()> {
             _ => continue,
         }
 
-        let chunks = &pkt.body[60..]
-            .chunks_exact(4)
-            .map(|chunk| i32::from_be_bytes(chunk.try_into().expect("chunks exact")))
-            .collect_vec();
+        let chunks = pkt.i32_be_chunks(60);
 
         let (h, m, s) = pkt.ts.time().as_hms();
         print!("{} {h:02}:{m:02}:{s:02}", pkt.ts.date());
@@ -225,18 +222,4 @@ fn group_up(pkt: &Packet, group: &mut Group) -> Result<()> {
     ensure!(pkt.header.u2 == 0, "expected u2==0, not {:?}", pkt.header);
 
     Ok(())
-}
-
-pub fn unambiguous(input: &[u8]) -> String {
-    let mut buf = String::with_capacity(2 * input.len());
-    for &c in input {
-        if c.is_ascii_alphanumeric() || c.is_ascii_punctuation() {
-            buf.push(char::from(c));
-        } else {
-            buf.push_str(&format!("[{c}]"));
-        }
-        buf.push(' ');
-    }
-    buf.pop();
-    buf
 }
