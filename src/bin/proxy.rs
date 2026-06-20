@@ -61,7 +61,7 @@ async fn handle_connection(
 
     let port = client_addr.port();
     let pcap = PcapWriter::new(port)?;
-    let hass = HassWriter::new(Mqtt::new_from_env("grsott")?);
+    let hass = HassWriter::new(Mqtt::new_from_env(&format!("grsott-{port}"))?);
     let observer: Mutex<Observers> = Mutex::new(Some((pcap, hass)));
 
     let (mut client_read, mut client_write) = client_stream.split();
