@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 anyhow = "1"
 axum = "0.8"
-base64 = "0.22"
+base64 = "0.23"
 bunyarrs = "0.3"
 crc = "3"
 hex = "0.4"
