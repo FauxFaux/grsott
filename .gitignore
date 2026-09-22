@@ -4,3 +4,4 @@
 *.pcapng
 *.bad
 
+__pycache__/
